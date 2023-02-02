@@ -1,32 +1,54 @@
 package com.bryan.androidexam.ui.main
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.bryan.androidexam.R
+import com.bryan.androidexam.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = MainFragment()
+    private var _binding: FragmentMainBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentMainBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private lateinit var viewModel: MainViewModel
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_main, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.mainBtnNext.setOnClickListener {
+            if (checkInput(binding.mainEtColumn) && checkInput(binding.mainEtRow)) {
+                val bundle = Bundle()
+                bundle.putInt("column", binding.mainEtColumn.text.toString().toInt())
+                bundle.putInt("row", binding.mainEtRow.text.toString().toInt())
+                Navigation.findNavController(view).navigate(R.id.action_mainFragment_to_secondFragment, bundle)
+            }
+        }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        // TODO: Use the ViewModel
+    private fun checkInput(editText: EditText): Boolean {
+        if (editText.length() > 0) {
+            val num = editText.text.toString().toInt()
+            if (num > 0) {
+                return true
+            } else {
+                editText.error = "須大於 0"
+            }
+        } else {
+            editText.error = "不可為空"
+        }
+        return false
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
